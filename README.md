@@ -1,4 +1,4 @@
-# [NOME DO SEU APP] - Gerenciador de Veículos
+#  Gerenciador de Veículos Sillion
 
 Este é um aplicativo Android nativo desenvolvido como parte de um processo de avaliação. O objetivo principal é permitir o cadastro e listagem de veículos, com foco em código limpo, arquitetura moderna e integração com Firebase.
 
