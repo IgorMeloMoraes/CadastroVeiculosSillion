@@ -1,24 +1,24 @@
 package com.kingcreationslabs.sillioncadastroveiculosmanager.repository
 
+import com.google.firebase.firestore.FirebaseFirestore // <-- IMPORTAR
 import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle
 import com.kingcreationslabs.sillioncadastroveiculosmanager.data.VehicleDao
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.tasks.await //  IMPORTAR (para usar .await() em Tasks do Firebase)
 import javax.inject.Inject
 
-// A classe "implementa" a interface VehicleRepository
-// Usamos "@Inject constructor" para dizer ao Hilt:
-//    "Para construir um VehicleRepositoryImpl, você PRECISA me
-//    'injetar' (fornecer) um VehicleDao."
-//    O Hilt sabe como fazer isso graças ao DatabaseModule da Tarefa 1.
 class VehicleRepositoryImpl @Inject constructor(
-    private val vehicleDao: VehicleDao
+    private val vehicleDao: VehicleDao,
+    private val firestore: FirebaseFirestore //  INJETAR O FIRESTORE AQUI
 ) : VehicleRepository {
 
-    //  Agora, apenas implementamos os métodos da interface
-    //    simplesmente "repassando" a chamada para o DAO.
-    //    (Nesta Sprint, o trabalho é fácil. Na Sprint 3,
-    //     adicionaremos a lógica do Firebase aqui).
+    //  Definir o nome da nossa "tabela" (coleção) no Firestore
+    companion object {
+        private const val VEHICLES_COLLECTION = "vehicles"
+    }
 
+    // --- Lógica de Leitura (READ) ---
+    // (Estas funções não mudam. Elas AINDA leem apenas do Room)
     override fun getVehiclesStream(): Flow<List<Vehicle>> {
         return vehicleDao.getVehiclesStream()
     }
@@ -27,11 +27,44 @@ class VehicleRepositoryImpl @Inject constructor(
         return vehicleDao.getVehicleByPlate(plate)
     }
 
+    // --- Lógica de Escrita (CREATE / UPDATE) ---
+    //  ATUALIZAR ESTA FUNÇÃO
     override suspend fun upsertVehicle(vehicle: Vehicle) {
-        vehicleDao.upsertVehicle(vehicle)
+        try {
+            // Primeiro, salva na nuvem (Firestore).
+            // Usamos a 'plate' como ID do documento. Isso é CRUCIAL,
+            // pois garante que as placas são únicas e facilita
+            // o Update/Delete.
+            firestore.collection(VEHICLES_COLLECTION)
+                .document(vehicle.plate)
+                .set(vehicle)
+                .await() // Espera a operação do Firebase ser concluída
+
+            // Se a linha acima NÃO deu exceção, o Firebase foi bem-sucedido.
+            // Agora, salvamos localmente no Room.
+            vehicleDao.upsertVehicle(vehicle)
+        } catch (e: Exception) {
+            // Se o Firebase falhar (ex: sem internet), uma exceção
+            // será lançada. Nós a relançamos para o ViewModel
+            // poder tratar (ex: mostrar uma mensagem de erro).
+            throw e
+        }
     }
 
+    // --- Lógica de Escrita (DELETE) ---
+    // (BÔNUS) ATUALIZAR ESTA FUNÇÃO TAMBÉM
     override suspend fun deleteVehicle(vehicle: Vehicle) {
-        vehicleDao.deleteVehicle(vehicle)
+        try {
+            // Primeiro, deleta da nuvem
+            firestore.collection(VEHICLES_COLLECTION)
+                .document(vehicle.plate)
+                .delete()
+                .await()
+
+            // Se foi bem-sucedido, deleta localmente
+            vehicleDao.deleteVehicle(vehicle)
+        } catch (e: Exception) {
+            throw e
+        }
     }
 }
