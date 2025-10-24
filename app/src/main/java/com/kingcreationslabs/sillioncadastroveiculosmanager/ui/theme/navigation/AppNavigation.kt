@@ -1,38 +1,40 @@
 package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier // 1. (NOVA IMPORTAÇÃO)
+import androidx.navigation.NavHostController // 2. (NOVA IMPORTAÇÃO)
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+// import androidx.navigation.compose.rememberNavController // 3. (REMOVIDO) Não precisamos mais disto
 import androidx.navigation.navArgument
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.addvehicle.AddVehicleScreen
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelist.VehicleListScreen
-import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehicledetails.VehicleDetailsScreen // 1. IMPORTE A NOVA TELA
+import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehicledetails.VehicleDetailsScreen
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.welcome.WelcomeScreen
 
+// 4. (MUDANÇA CRÍTICA) A função agora aceita parâmetros
 @Composable
-fun AppNavigation() {
-    val navController = rememberNavController() // (Ou 'controladorNavegacao', o que você usou)
+fun AppNavigation(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    // 5. (REMOVIDO) A linha 'val navController = rememberNavController()'
+    //    foi apagada daqui, pois ele vem da MainActivity.
 
+    // 6. (MUDANÇA) O 'modifier' recebido é aplicado ao NavHost.
     NavHost(
         navController = navController,
-        // startDestination = Screen.VehicleList.route
-        // 2. (MUDANÇA CRÍTICA) O app agora começa na tela de Boas-Vindas
-        startDestination = Screen.Welcome.route
+        startDestination = Screen.Welcome.route,
+        modifier = modifier // <-- APLICA O MODIFIER (com o padding) AQUI
     ) {
 
-        // 3. (NOVA ROTA) Adiciona o composable da tela de Boas-Vindas
+        // --- O RESTANTE DO ARQUIVO (AS ROTAS) É IDÊNTICO ---
+
         composable(route = Screen.Welcome.route) {
             WelcomeScreen(
                 onNavigateToMain = {
-                    // 4. (LÓGICA DE NAVEGAÇÃO)
-                    // Quando o usuário clicar em "Get Started",
-                    // navegamos para a lista...
                     navController.navigate(Screen.VehicleList.route) {
-                        // ...e removemos a WelcomeScreen da pilha.
-                        // Isso impede que o usuário clique em "Voltar"
-                        // e veja a tela de boas-vindas novamente.
                         popUpTo(Screen.Welcome.route) {
                             inclusive = true
                         }
@@ -41,23 +43,19 @@ fun AppNavigation() {
             )
         }
 
-        // --- ROTA DA LISTA (MODIFICADA) ---
         composable(route = Screen.VehicleList.route) {
             VehicleListScreen(
-                onNavigateToAddVehicle = {
+               /* onNavigateToAddVehicle = {
+                    // Esta chamada ainda existe, mas vamos removê-la
+                    // na próxima tarefa (quando removermos o FAB)
                     navController.navigate(Screen.AddVehicle.route)
-                },
-                // 2. (MUDANÇA) Passa uma nova função lambda
-                //    para a tela de lista.
+                },*/
                 onNavigateToDetails = { plate ->
-                    // 3. (MUDANÇA) Quando chamada, navega para a
-                    //    rota de detalhes usando nossa função auxiliar.
                     navController.navigate(Screen.VehicleDetails.createRoute(plate))
                 }
             )
         }
 
-        // --- ROTA DE ADICIONAR (Sem mudanças) ---
         composable(route = Screen.AddVehicle.route) {
             AddVehicleScreen(
                 onBack = {
@@ -66,25 +64,16 @@ fun AppNavigation() {
             )
         }
 
-        // --- ROTA DE DETALHES (CORRIGIDA) ---
         composable(
             route = Screen.VehicleDetails.route,
-            // 1. A definição do argumento DEVE continuar aqui
             arguments = listOf(
                 navArgument("plate") { type = NavType.StringType }
             )
         ) {
-            // 2. NÃO precisamos mais extrair a 'plate' aqui.
-            //    O VehicleDetailsViewModel fará isso sozinho
-            //    usando o Hilt e o SavedStateHandle.
-
-            // 3. Apenas chame a tela.
             VehicleDetailsScreen(
                 onBack = {
                     navController.popBackStack()
                 }
-                // O 'viewModel = hiltViewModel()' será
-                // chamado automaticamente dentro da tela.
             )
         }
     }

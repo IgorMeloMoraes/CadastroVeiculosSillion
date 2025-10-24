@@ -44,7 +44,7 @@ import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle // <-- 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VehicleListScreen(
-    onNavigateToAddVehicle: () -> Unit,
+    // onNavigateToAddVehicle: () -> Unit,
     onNavigateToDetails: (String) -> Unit,
     viewModel: VehicleListViewModel = hiltViewModel()
 ) {
@@ -62,11 +62,11 @@ fun VehicleListScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        floatingActionButton = {
+        /*floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToAddVehicle) {
                 Icon(Icons.Default.Add, contentDescription = "Adicionar Veículo")
             }
-        }
+        }*/
     ) { paddingValues ->
         VehicleListContent(
             modifier = Modifier.padding(paddingValues),
