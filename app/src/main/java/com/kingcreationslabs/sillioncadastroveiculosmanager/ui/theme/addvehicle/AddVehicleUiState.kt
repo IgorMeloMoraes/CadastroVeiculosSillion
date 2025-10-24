@@ -26,5 +26,7 @@ data class AddVehicleUiState(
     // Campos de controle da UI
     val isSaving: Boolean = false,
     val saveError: String? = null,
-    val isSaveSuccess: Boolean = false // Usaremos para disparar a navegação
+    val isSaveSuccess: Boolean = false, // Usaremos para disparar a navegação
+    // NOVO CAMPO
+    val isPlateError: Boolean = false // Indica se a placa digitada é inválida
 )

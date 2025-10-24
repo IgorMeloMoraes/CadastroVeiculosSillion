@@ -117,7 +117,18 @@ fun VehicleDetailsScreen(
                 label = { Text("Placa (Não pode ser editada)") },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = false, // <-- A MUDANÇA
-                singleLine = true
+                singleLine = true,
+                // --- NOVAS PROPRIEDADES ---
+                isError = uiState.isPlateError, // Usa o estado de erro do ViewModel
+                supportingText = { // Mostra mensagem de ajuda/erro
+                    if (uiState.isPlateError) {
+                        Text(
+                            text = "Formato: AAA-1234 ou AAA1B23",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                // --- FIM DAS NOVAS PROPRIEDADES ---
             )
 
             // O RESTANTE DO FORMULÁRIO É EXATAMENTE O MESMO
@@ -144,17 +155,32 @@ fun VehicleDetailsScreen(
             )
 
             Row(
-                // ... (igual)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedTextField(
                     value = uiState.modelYear,
                     onValueChange = viewModel::onModelYearChange,
-                    // ... (igual)
+                    label = { Text("Ano") },
+                    // 1. ADICIONE/CORRIJA O MODIFIER AQUI
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    singleLine = true
                 )
                 OutlinedTextField(
                     value = uiState.color,
                     onValueChange = viewModel::onColorChange,
-                    // ... (igual)
+                    label = { Text("Cor") },
+                    // 2. ADICIONE/CORRIJA O MODIFIER AQUI
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    ),
+                    singleLine = true
                 )
             }
 
@@ -162,18 +188,21 @@ fun VehicleDetailsScreen(
                 value = uiState.mileage,
                 onValueChange = viewModel::onMileageChange,
                 // ... (igual)
+                label = { Text("Km") },
             )
 
             OutlinedTextField(
                 value = uiState.ownerName,
                 onValueChange = viewModel::onOwnerNameChange,
                 // ... (igual)
+                label = { Text("Prorietário") },
             )
 
             OutlinedTextField(
                 value = uiState.notes,
                 onValueChange = viewModel::onNotesChange,
                 // ... (igual)
+                label = { Text("Notas") },
             )
 
             Spacer(modifier = Modifier.height(16.dp))

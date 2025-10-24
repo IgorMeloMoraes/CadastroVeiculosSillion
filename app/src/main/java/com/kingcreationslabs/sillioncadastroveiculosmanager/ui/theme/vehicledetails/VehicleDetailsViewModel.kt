@@ -17,6 +17,9 @@ import java.util.Date
 import javax.inject.Inject
 import com.kingcreationslabs.sillioncadastroveiculosmanager.data.TipoDeVeiculo // Importe o Enum
 
+// Adicione a constante Regex fora das funções
+private val PLATE_REGEX = Regex("^[A-Z]{3}-?[0-9][A-Z0-9][0-9]{2}$")
+
 @HiltViewModel
 class VehicleDetailsViewModel @Inject constructor(
     private val repository: VehicleRepository,
@@ -98,7 +101,8 @@ class VehicleDetailsViewModel @Inject constructor(
     }
 
     fun onModelYearChange(newValue: String) {
-        if (newValue.all { it.isDigit() }) {
+        // Permite apenas números E limita a 4 caracteres
+        if (newValue.all { it.isDigit() } && newValue.length <= 4) {
             _uiState.update { it.copy(modelYear = newValue) }
         }
     }
@@ -152,6 +156,13 @@ class VehicleDetailsViewModel @Inject constructor(
             _uiState.update { it.copy(saveError = "Placa, Modelo e Fabricante são obrigatórios.") }
             return
         }
+
+        // *** NOVA VALIDAÇÃO DE PLACA ***
+        if (currentState.isPlateError || !PLATE_REGEX.matches(currentState.plate.replace("-", ""))) {
+            _uiState.update { it.copy(saveError = "Formato da placa inválido. Use AAA-1234 ou AAA1B23.") }
+            return
+        }
+        // *** FIM DA NOVA VALIDAÇÃO ***
 
         val vehicle = Vehicle(
             plate = currentState.plate,

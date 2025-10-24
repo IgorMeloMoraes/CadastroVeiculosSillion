@@ -117,7 +117,18 @@ fun AddVehicleScreen(
                     capitalization = KeyboardCapitalization.Characters,
                     imeAction = ImeAction.Next
                 ),
-                singleLine = true
+                singleLine = true,
+                // --- NOVAS PROPRIEDADES ---
+                isError = uiState.isPlateError, // Usa o estado de erro do ViewModel
+                supportingText = { // Mostra mensagem de ajuda/erro
+                    if (uiState.isPlateError) {
+                        Text(
+                            text = "Formato: AAA-1234 ou AAA1B23",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                // --- FIM DAS NOVAS PROPRIEDADES ---
             )
 
             OutlinedTextField(
