@@ -67,3 +67,8 @@ Este projeto implementa uma arquitetura **Offline-first**.
 | **Jetpack Navigation** | Navegação | Requisito do projeto. Gerencia a navegação entre as telas (Composables) de forma centralizada (`AppNavigation.kt`) e robusta, incluindo a passagem de argumentos (como a placa do veículo). |
 | **Room** | Banco de Dados Local (SQL) | Requisito do projeto (`Room/SP`). Escolhido por ser um ORM robusto, ideal para armazenar e consultar dados estruturados (veículos) e servir como cache offline (SSOT). |
 | **Firebase Firestore** | Banco de Dados Remoto (NoSQL) | Requisito do projeto (`Firebase`). Usado para a persistência em nuvem e sincronização de dados em tempo real. |
+
+### Visualização das Telas 
+
+
+
