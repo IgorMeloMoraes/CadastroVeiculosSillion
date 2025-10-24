@@ -1,5 +1,9 @@
 package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelist
 
+// --- IMPORTS CORRETOS PARA A API NOVA ---
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -7,104 +11,170 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SwipeToDismissBox // <-- API NOVA (Correta)
+import androidx.compose.material3.SwipeToDismissBoxState // <-- API NOVA (Correta)
+import androidx.compose.material3.SwipeToDismissBoxValue // <-- API NOVA (Correta)
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState // <-- API NOVA (Correta)
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle // <-- Import do seu Modelo
+// (Verifique se o 'data' está correto, ou se é 'model')
 
-// A assinatura da função agora recebe o ViewModel como um parâmetro padrão.
-// O Hilt (via hiltViewModel()) cuidará de injetá-lo automaticamente.
+// 1. OptIn para a API experimental
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VehicleListScreen(
     onNavigateToAddVehicle: () -> Unit,
     viewModel: VehicleListViewModel = hiltViewModel()
 ) {
-    // Coletamos o UiState do ViewModel de forma segura (lifecycle-aware)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    //  O Scaffold é o layout base do Material. Ele nos dá
-    //    slots para a barra superior, conteúdo principal e o FAB.
+    // Efeito para "escutar" por mensagens (CORRIGIDO com 'val message')
+    LaunchedEffect(uiState.userMessage) {
+        val message = uiState.userMessage
+        if (message != null) {
+            snackbarHostState.showSnackbar(message)
+            viewModel.userMessageShown()
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
-            //  Este é o botão "+" que chama a função de navegação
-            //    que recebemos do nosso AppNavigation (Sprint 1).
             FloatingActionButton(onClick = onNavigateToAddVehicle) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Adicionar Veículo"
-                )
+                Icon(Icons.Default.Add, contentDescription = "Adicionar Veículo")
             }
         }
-    ) { paddingValues -> // paddingValues contém o espaço usado pelo FAB/AppBar
-
-        //  Chamamos um Composable separado para o conteúdo principal,
-        //    passando o UiState e o padding.
+    ) { paddingValues ->
         VehicleListContent(
             modifier = Modifier.padding(paddingValues),
-            uiState = uiState
+            uiState = uiState,
+            onDeleteVehicle = viewModel::deleteVehicle
         )
     }
 }
 
-//  (Boa Prática) Separamos o "Conteúdo" da "Tela"
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VehicleListContent(
     modifier: Modifier = Modifier,
-    uiState: VehicleListUiState
+    uiState: VehicleListUiState,
+    onDeleteVehicle: (Vehicle) -> Unit
 ) {
-    //  Usamos um Box para centralizar o Loading ou Erro
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        //  Se estiver carregando, mostre um indicador de progresso
+        // ... (isLoading, error, isEmpty... tudo igual)
         if (uiState.isLoading) {
             CircularProgressIndicator()
-        }
-        //  Se houver um erro, mostre a mensagem
-        else if (uiState.error != null) {
+        } else if (uiState.error != null) {
             Text(
                 text = "Erro: ${uiState.error}",
                 color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center
             )
-        }
-        //  Se a lista estiver vazia (e não carregando), mostre um aviso
-        else if (uiState.vehicles.isEmpty()) {
+        } else if (uiState.vehicles.isEmpty()) {
             Text(
                 text = "Nenhum veículo cadastrado.\nClique no botão '+' para adicionar.",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
         }
-        //  (O principal) Se tivermos veículos, mostre a lista
+        // --- CONTEÚDO DA LISTA COM A API CORRETA ---
         else {
-            // LazyColumn é o "RecyclerView" do Compose.
-            // Ele só renderiza os itens que estão visíveis na tela.
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // "items" é a função que constrói a lista.
-                // "key" é importante para o Compose otimizar a performance.
                 items(uiState.vehicles, key = { it.plate }) { vehicle ->
-                    // 12. Usamos o Composable de "célula" que criamos
-                    VehicleListItem(
-                        vehicle = vehicle,
-                        onClick = {
-                            // Deixaremos isso para uma sprint futura (Detalhes do Veículo)
+
+                    // 2. (MUDANÇA) Usando 'rememberSwipeToDismissBoxState'
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { dismissValue ->
+                            // 3. (MUDANÇA) Usando 'SwipeToDismissBoxValue.EndToStart'
+                            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                onDeleteVehicle(vehicle)
+                                return@rememberSwipeToDismissBoxState true
+                            }
+                            return@rememberSwipeToDismissBoxState false
                         }
                     )
+
+                    // 4. (MUDANÇA) Usando 'SwipeToDismissBox'
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        // 5. O fundo agora é 'backgroundContent'
+                        backgroundContent = {
+                            SwipeToDeleteBackground(dismissState = dismissState)
+                        },
+                        // Habilita apenas o deslize da direita para a esquerda
+                        enableDismissFromEndToStart = true,
+                        enableDismissFromStartToEnd = false
+                    ) {
+                        // Este é o conteúdo principal que fica visível
+                        VehicleListItem(
+                            vehicle = vehicle,
+                            onClick = {
+                                // Tarefa 2 (Update)
+                            }
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+// 6. (MUDANÇA) Composable auxiliar para o fundo
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeToDeleteBackground(dismissState: SwipeToDismissBoxState) { // <-- MUDANÇA (SwipeToDismissBoxState)
+    val color by animateColorAsState(
+        // 7. (MUDANÇA) Acesso ao 'targetValue'
+        targetValue = when (dismissState.targetValue) {
+            SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.8f)
+            else -> Color.Transparent
+        }, label = "background_color_animation"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) 1.1f else 0.8f,
+        label = "icon_scale_animation"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Icon(
+            Icons.Default.Delete,
+            contentDescription = "Excluir",
+            modifier = Modifier.scale(scale),
+            tint = Color.White
+        )
     }
 }

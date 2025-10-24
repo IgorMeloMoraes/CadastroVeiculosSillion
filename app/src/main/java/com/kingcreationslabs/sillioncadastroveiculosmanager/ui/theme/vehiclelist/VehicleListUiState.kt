@@ -6,5 +6,6 @@ import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle
 data class VehicleListUiState(
     val isLoading: Boolean = false,
     val vehicles: List<Vehicle> = emptyList(), // Começa com uma lista vazia
-    val error: String? = null
+    val error: String? = null,
+    val userMessage: String? = null // 1. ADICIONE ESTA LINHA
 )

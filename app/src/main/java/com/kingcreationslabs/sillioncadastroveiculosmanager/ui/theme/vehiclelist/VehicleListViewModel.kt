@@ -2,6 +2,7 @@ package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelis
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle
 import com.kingcreationslabs.sillioncadastroveiculosmanager.repository.VehicleRepository
 // ... (outros imports)
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -93,4 +94,25 @@ class VehicleListViewModel @Inject constructor(
     }
 
     // ... (outras funções futuras)
+    //  ADICIONE ESTA NOVA FUNÇÃO (para a UI chamar)
+    fun deleteVehicle(vehicle: Vehicle) {
+        viewModelScope.launch {
+            try {
+                //  Chama o Repositório (que já sabe deletar do Firebase + Room)
+                repository.deleteVehicle(vehicle)
+
+                //  Se for bem-sucedido, mostra uma mensagem de sucesso
+                _uiState.update { it.copy(userMessage = "Veículo excluído com sucesso") }
+
+            } catch (e: Exception) {
+                //  Se falhar (ex: sem internet), mostra uma mensagem de erro
+                _uiState.update { it.copy(userMessage = "Erro ao excluir: ${e.message}") }
+            }
+        }
+    }
+
+    //  ADICIONE ESTA FUNÇÃO (para a UI chamar após mostrar a mensagem)
+    fun userMessageShown() {
+        _uiState.update { it.copy(userMessage = null) }
+    }
 }
