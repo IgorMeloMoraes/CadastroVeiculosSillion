@@ -2,8 +2,8 @@ package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelis
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle
 import com.kingcreationslabs.sillioncadastroveiculosmanager.repository.VehicleRepository
+// ... (outros imports)
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,66 +14,83 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//  @HiltViewModel: Diz ao Hilt que esta classe é um ViewModel
-//    e que ele deve gerenciar sua criação.
 @HiltViewModel
 class VehicleListViewModel @Inject constructor(
-    //  @Inject constructor: O Hilt vai injetar a *implementação*
-    //    do VehicleRepository (que ensinamos no RepositoryModule).
     private val repository: VehicleRepository
-) : ViewModel() { //  Herda de ViewModel
+) : ViewModel() {
 
-    //  O "Estado" privado e mutável da nossa UI.
-    //    Só o ViewModel pode modificar este.
     private val _uiState = MutableStateFlow(VehicleListUiState())
-
-    //  O "Estado" público e imutável (read-only).
-    //    A UI (Compose) vai "observar" este StateFlow.
     val uiState: StateFlow<VehicleListUiState> = _uiState.asStateFlow()
 
-    //  O bloco "init" é executado assim que o ViewModel é criado.
     init {
-        loadVehicles()
+        //  MUDANÇA: O loadVehicles agora só "assiste" ao Room.
+        observeLocalVehicles()
+
+        //  MUDANÇA: Adicionamos uma chamada separada para sincronizar
+        //    com o Firebase assim que o ViewModel for criado.
+        syncVehiclesFromRemote()
     }
 
-    //  Função principal que busca os dados.
-    private fun loadVehicles() {
-        //  "viewModelScope.launch" inicia uma Coroutine que
-        //    viverá enquanto o ViewModel viver. É seguro para
-        //    operações longas, como observar um banco de dados.
+    //  MUDANÇA: Renomeamos 'loadVehicles' para ser mais específico
+    private fun observeLocalVehicles() {
         viewModelScope.launch {
-            repository.getVehiclesStream() //  Pega o Flow do Repositório
+            repository.getVehiclesStream() // Pega o Flow do Room
                 .onStart {
-                    //  Antes de começar a coletar, atualiza o estado
-                    //    para "isLoading = true".
+                    // (Lógica antiga)
                     _uiState.update { it.copy(isLoading = true) }
                 }
                 .catch { exception ->
-                    //  Se o Flow (do Room) der um erro,
-                    //     capturamos e atualizamos o estado de erro.
+                    // (Lógica antiga) Se o Room falhar (raro)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            error = exception.message
+                            error = "Erro ao carregar dados locais: ${exception.message}"
                         )
                     }
                 }
                 .collect { vehicleList ->
-                    //  (O principal) Esta é a "magia" do Flow.
-                    //     Toda vez que o Room emitir uma nova lista
-                    //     (seja na primeira vez, ou após um "upsert"),
-                    //     este bloco "collect" será executado.
+                    // (Lógica antiga)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            vehicles = vehicleList
+                            vehicles = vehicleList,
+                            // Limpa qualquer erro anterior assim que novos dados chegarem
+                            error = null
                         )
                     }
                 }
         }
     }
 
-    // Futuramente, adicionaremos funções aqui como:
-    // fun onAddVehicleClicked(vehicle: Vehicle) { ... }
-    // fun onDeleteVehicle(vehicle: Vehicle) { ... }
+    //  MUDANÇA: Esta é a nova função que chama o Repository
+    private fun syncVehiclesFromRemote() {
+        viewModelScope.launch {
+            try {
+                //  Inicia o "carregamento" (mesmo que a lista já esteja sendo exibida)
+                //    para indicar atividade de rede (opcional)
+                _uiState.update { it.copy(isLoading = true) }
+
+                //  Chama a nova função do repositório
+                repository.syncVehiclesFromFirestore()
+
+                //  Se a sincronização for bem-sucedida, o 'collect'
+                //    do 'observeLocalVehicles' cuidará de atualizar a UI.
+                //    Podemos apenas parar o indicador 'isLoading'.
+                //    (Na verdade, o 'collect' já fará isso, mas é bom ser explícito)
+                _uiState.update { it.copy(isLoading = false) }
+
+            } catch (e: Exception) {
+                //  Se o repository.sync...() lançar uma exceção (sem internet),
+                //    nós a capturamos aqui e mostramos um erro.
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Falha ao sincronizar: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    // ... (outras funções futuras)
 }

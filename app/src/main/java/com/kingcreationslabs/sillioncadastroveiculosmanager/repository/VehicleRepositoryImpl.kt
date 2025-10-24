@@ -67,4 +67,40 @@ class VehicleRepositoryImpl @Inject constructor(
             throw e
         }
     }
+
+    //  IMPLEMENTE A NOVA FUNÇÃO
+    override suspend fun syncVehiclesFromFirestore() {
+        try {
+            //  Busca TODOS os documentos da coleção "vehicles" no Firestore
+            val querySnapshot = firestore.collection(VEHICLES_COLLECTION)
+                .get()
+                .await() // Espera a chamada de rede
+
+            //  Converte os documentos recebidos em objetos Vehicle
+            val vehiclesFromFirestore = querySnapshot.documents.mapNotNull { document ->
+                // O .toObject() magicamente converte o mapa de dados
+                // do Firestore em nosso data class Vehicle.
+                // Isso funciona porque os nomes dos campos (plate, model, etc.)
+                // são os mesmos no Firestore e no data class.
+                document.toObject(Vehicle::class.java)
+            }
+
+            // (Opcional, mas seguro) Se o Firestore retornar uma lista vazia,
+            // não precisamos fazer nada.
+            if (vehiclesFromFirestore.isNotEmpty()) {
+                //  Para cada veículo da nuvem, fazemos um UPSERT no Room.
+                // O Upsert garante que:
+                // - Se o veículo já existe localmente, será ATUALIZADO.
+                // - Se for um veículo novo, será INSERIDO.
+                vehiclesFromFirestore.forEach { vehicle ->
+                    vehicleDao.upsertVehicle(vehicle)
+                }
+            }
+        } catch (e: Exception) {
+            // Se a sincronização falhar (ex: sem internet),
+            // nós relançamos a exceção. O ViewModel vai cuidar disso.
+            // O app continuará funcionando com os dados locais do Room.
+            throw e
+        }
+    }
 }
