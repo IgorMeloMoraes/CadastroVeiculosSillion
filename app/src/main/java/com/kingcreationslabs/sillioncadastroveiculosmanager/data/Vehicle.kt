@@ -1,4 +1,4 @@
-package com.kingcreationslabs.sillioncadastroveiculosmanager.model
+package com.kingcreationslabs.sillioncadastroveiculosmanager.data
 
 
 import androidx.room.Entity
@@ -7,21 +7,23 @@ import com.google.firebase.firestore.ServerTimestamp
 import java.util.Date
 
 // Anotação do Room: Define o nome da tabela
-@Entity(tableName = "veiculos")
-data class Veiculos(
+@Entity(tableName = "vehicle_table")
+data class Vehicle(
 
     // Anotação do Room: Define a chave primária.
     // O autoGenerate = true não é ideal aqui, pois queremos que o ID
     // do Firebase e do Room sejam os mesmos. Vamos usar a Placa como ID.
     @PrimaryKey
-    val placa: String = "", // Placa (ex: ABC1234) - Usaremos como ID
+    val plate: String = "", // Placa (ex: ABC1234) - Usaremos como ID
 
     // --- Campos de Identificação Básica ---
-    val modelo: String = "",
-    val fabricante: String = "",
-    val anoFabricacao: Int = 0, // Ano (Ex: 2023)
-    val cor: String = "",
-    val quilometragem: Long = 0, // Quilometragem
+    val model: String = "", // modelo (ex: Civic)
+    val manufacturer: String = "", // fabricante (ex: Honda)
+    val modelYear: Int = 0, // Ano Fabricação (Ex: 2023)
+    val color: String = "", // cor (ex: Preto)
+
+    // --- Campos de Informações Complementares ---
+    val mileage: Long = 0, // Quilometragem (ex: 10000)
 
 
     // --- Campos de Gerenciamento (Business Logic) ---
@@ -33,22 +35,26 @@ data class Veiculos(
     // na criação, se o campo for nulo. Mas para revisões, vamos querer
     // que o usuário insira. Vamos usar java.util.Date, que o Room e o Firebase
     // convertem bem.
-    val ultimaRevisao: Date? = null,
-    val proximaRevisao: Date? = null,
+    val lastRevision: Date? = null, // Ultima revisão (ex: 2023-01-01)
+    val nextRevision: Date? = null, // Proxima revisão (ex: 2023-02-01)
 
     // (Campo Adicional Empresarial)
     // Mostra que pensamos em outros "lembretes" valiosos para o usuário.
-    val vencimentoLicenciamento: Long? = null, // Vencimento do Licenciamento
+    val registrationDueDate: Long? = null, // Vencimento do Licenciamento (ex: 2023-06-01)
+
 
     // Mostra que pensamos no ciclo de vida do ativo.
     // Ex: "Ativo", "Em Manutenção", "Vendido"
-    val status: String = "Ativo",
+    val status: String = "Ativo", // (Ex: "Active", "Maintenance", "Sold")
 
     // Mostra que pensamos no "dono" da informação.
-    val nomeProprietario: String = "",
+    val ownerName: String = "", // nome do dono (ex: João Silva)
+
 
     // Mostra que pensamos na flexibilidade do sistema.
-    val obervacoesAdicionais: String = "",
+    val notes: String = "", // observações (ex: Objeto novo)
+
+
 
     // --- Campo de Auditoria ---
     // Anotação do Firebase: Quando este objeto for salvo no Firestore,

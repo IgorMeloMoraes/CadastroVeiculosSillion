@@ -4,7 +4,7 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class CadastroVeiculosManagerApp : Application() {
+class VehicleManagerApp : Application() {
 
     // O Hilt fará a mágica dele nos bastidores.
     override fun onCreate() {
