@@ -56,7 +56,8 @@ fun VehicleListItem(
             .clickable { onClick(vehicle) }
             .padding(horizontal = 8.dp, vertical = 4.dp), // Padding menor entre os cards
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Fundo do Card
+        // 1. (MUDANÇA) Usando a cor 'surface' do tema para o fundo do card
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         // 1. Linha principal para organizar os elementos
         Row(
@@ -70,14 +71,16 @@ fun VehicleListItem(
                 modifier = Modifier
                     .size(40.dp) // Tamanho do círculo de fundo
                     .clip(CircleShape) // Faz ser um círculo
-                    .background(MaterialTheme.colorScheme.primaryContainer), // Cor de fundo
+                    // 2. (MUDANÇA) Cor de fundo do ícone (pode ser ajustada)
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha=0.1f)), // Tom mais suave
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = vehicle.type.icon, // Pega o ícone do Enum!
                     contentDescription = vehicle.type.nomeAmigavel,
                     modifier = Modifier.size(24.dp), // Tamanho do ícone
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer // Cor do ícone
+                    // 3. (MUDANÇA) Cor do ícone (geralmente onPrimaryContainer ou primary)
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -93,13 +96,16 @@ fun VehicleListItem(
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // Adiciona "..." se for muito longo
+                    overflow = TextOverflow.Ellipsis, // Adiciona "..." se for muito longo
+                    // 4. (MUDANÇA) Cor do texto principal do card
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 // Data da Próxima Revisão (Texto Secundário)
                 Text(
                     text = "Próx. Revisão: ${vehicle.nextRevision.toFormattedDateStringOrPlaceholder()}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant // Cor mais suave
+                    // 5. (MUDANÇA) Cor do texto secundário
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -110,7 +116,8 @@ fun VehicleListItem(
                 text = vehicle.plate,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary // Cor de destaque
+                // 6. (MUDANÇA) Cor da placa (usando a mesma cor principal do texto)
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
