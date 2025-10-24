@@ -2,14 +2,15 @@ package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelis
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kingcreationslabs.sillioncadastroveiculosmanager.data.TipoDeVeiculo // <-- IMPORT do Enum
 import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle
 import com.kingcreationslabs.sillioncadastroveiculosmanager.repository.VehicleRepository
-// ... (outros imports)
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine // <-- (NOVA IMPORTAÇÃO)
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,28 +21,44 @@ class VehicleListViewModel @Inject constructor(
     private val repository: VehicleRepository
 ) : ViewModel() {
 
+    // 1. (NOVO) StateFlow privado para guardar o filtro selecionado
+    private val _selectedType = MutableStateFlow<TipoDeVeiculo?>(null) // Começa com "Todos"
+
+    // 2. (MODIFICADO) O UiState agora é construído combinando vários fluxos
     private val _uiState = MutableStateFlow(VehicleListUiState())
     val uiState: StateFlow<VehicleListUiState> = _uiState.asStateFlow()
 
     init {
-        //  MUDANÇA: O loadVehicles agora só "assiste" ao Room.
-        observeLocalVehicles()
-
-        //  MUDANÇA: Adicionamos uma chamada separada para sincronizar
-        //    com o Firebase assim que o ViewModel for criado.
+        // 3. (MODIFICADO) Renomeado para ficar mais claro
+        observeVehiclesAndFilter()
         syncVehiclesFromRemote()
     }
 
-    //  MUDANÇA: Renomeamos 'loadVehicles' para ser mais específico
-    private fun observeLocalVehicles() {
+    // 4. (MODIFICADO) Função principal que combina e filtra
+    private fun observeVehiclesAndFilter() {
         viewModelScope.launch {
-            repository.getVehiclesStream() // Pega o Flow do Room
+            // Usamos 'combine' para juntar o fluxo de veículos do repo
+            // com o nosso StateFlow do filtro selecionado.
+            combine(
+                repository.getVehiclesStream(), // Fluxo 1: Lista completa do Room
+                _selectedType                // Fluxo 2: O filtro atual
+            ) { vehicles, selectedType ->
+                // Este bloco é executado sempre que 'vehicles' OU 'selectedType' mudar.
+
+                // Filtramos a lista aqui, ANTES de atualizar a UI
+                val filteredVehicles = if (selectedType == null) {
+                    vehicles // Se o filtro for null ("Todos"), retorna a lista completa
+                } else {
+                    vehicles.filter { it.type == selectedType } // Senão, filtra pelo tipo
+                }
+
+                // Retornamos um 'Pair' (Par) com a lista filtrada e o filtro usado
+                Pair(filteredVehicles, selectedType)
+            }
                 .onStart {
-                    // (Lógica antiga)
                     _uiState.update { it.copy(isLoading = true) }
                 }
                 .catch { exception ->
-                    // (Lógica antiga) Se o Room falhar (raro)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -49,13 +66,13 @@ class VehicleListViewModel @Inject constructor(
                         )
                     }
                 }
-                .collect { vehicleList ->
-                    // (Lógica antiga)
+                .collect { (filteredList, currentFilter) ->
+                    // Recebemos o 'Pair' que criamos no 'combine'
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            vehicles = vehicleList,
-                            // Limpa qualquer erro anterior assim que novos dados chegarem
+                            vehicles = filteredList, // A UI recebe a lista JÁ FILTRADA
+                            selectedType = currentFilter, // Atualiza o filtro selecionado no State
                             error = null
                         )
                     }
@@ -63,29 +80,23 @@ class VehicleListViewModel @Inject constructor(
         }
     }
 
-    //  MUDANÇA: Esta é a nova função que chama o Repository
     private fun syncVehiclesFromRemote() {
         viewModelScope.launch {
             try {
-                //  Inicia o "carregamento" (mesmo que a lista já esteja sendo exibida)
-                //    para indicar atividade de rede (opcional)
-                _uiState.update { it.copy(isLoading = true) }
+                // Não precisamos mais do isLoading aqui, pois 'observeVehiclesAndFilter'
+                // já trata disso no .onStart()
+                // _uiState.update { it.copy(isLoading = true) } // (REMOVIDO)
 
-                //  Chama a nova função do repositório
                 repository.syncVehiclesFromFirestore()
 
-                //  Se a sincronização for bem-sucedida, o 'collect'
-                //    do 'observeLocalVehicles' cuidará de atualizar a UI.
-                //    Podemos apenas parar o indicador 'isLoading'.
-                //    (Na verdade, o 'collect' já fará isso, mas é bom ser explícito)
-                _uiState.update { it.copy(isLoading = false) }
+                // O isLoading será tratado pelo .collect() do combine quando os
+                // dados sincronizados chegarem do Room.
+                // _uiState.update { it.copy(isLoading = false) } // (REMOVIDO)
 
             } catch (e: Exception) {
-                //  Se o repository.sync...() lançar uma exceção (sem internet),
-                //    nós a capturamos aqui e mostramos um erro.
                 _uiState.update {
                     it.copy(
-                        isLoading = false,
+                        isLoading = false, // Garante que parou o loading
                         error = "Falha ao sincronizar: ${e.message}"
                     )
                 }
@@ -93,25 +104,23 @@ class VehicleListViewModel @Inject constructor(
         }
     }
 
-    // ... (outras funções futuras)
-    //  ADICIONE ESTA NOVA FUNÇÃO (para a UI chamar)
+    // 5. (NOVA FUNÇÃO) Chamada pela UI quando um filtro é clicado
+    fun onFilterChanged(type: TipoDeVeiculo?) {
+        _selectedType.value = type // Simplesmente atualiza o StateFlow do filtro
+        // O 'combine' lá em cima vai reagir automaticamente a esta mudança.
+    }
+
     fun deleteVehicle(vehicle: Vehicle) {
         viewModelScope.launch {
             try {
-                //  Chama o Repositório (que já sabe deletar do Firebase + Room)
                 repository.deleteVehicle(vehicle)
-
-                //  Se for bem-sucedido, mostra uma mensagem de sucesso
                 _uiState.update { it.copy(userMessage = "Veículo excluído com sucesso") }
-
             } catch (e: Exception) {
-                //  Se falhar (ex: sem internet), mostra uma mensagem de erro
                 _uiState.update { it.copy(userMessage = "Erro ao excluir: ${e.message}") }
             }
         }
     }
 
-    //  ADICIONE ESTA FUNÇÃO (para a UI chamar após mostrar a mensagem)
     fun userMessageShown() {
         _uiState.update { it.copy(userMessage = null) }
     }
