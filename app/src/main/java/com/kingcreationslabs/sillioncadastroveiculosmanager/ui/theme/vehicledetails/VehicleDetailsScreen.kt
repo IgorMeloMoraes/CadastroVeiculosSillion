@@ -52,6 +52,8 @@ import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.addvehicle.
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+// 1. (NOVA IMPORTAÇÃO) Importe o componente que acabamos de criar
+import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.components.TypeSelectionDropdown
 
 // 1. (MUDANÇA) Removemos o 'plate: String?'
 //    Não precisamos mais dele, pois o ViewModel cuidará disso.
@@ -132,6 +134,13 @@ fun VehicleDetailsScreen(
                 onValueChange = viewModel::onModelChange,
                 label = { Text("Modelo*") },
                 // ... (igual)
+            )
+
+            // 2. (NOVO COMPONENTE ADICIONADO AQUI)
+            TypeSelectionDropdown(
+                selectedType = uiState.type,
+                onTypeSelected = viewModel::onTypeChanged,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Row(

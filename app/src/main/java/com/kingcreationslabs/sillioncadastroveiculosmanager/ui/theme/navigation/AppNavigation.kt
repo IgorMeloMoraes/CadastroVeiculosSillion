@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.addvehicle.AddVehicleScreen
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelist.VehicleListScreen
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehicledetails.VehicleDetailsScreen // 1. IMPORTE A NOVA TELA
+import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.welcome.WelcomeScreen
 
 @Composable
 fun AppNavigation() {
@@ -16,8 +17,29 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.VehicleList.route
+        // startDestination = Screen.VehicleList.route
+        // 2. (MUDANÇA CRÍTICA) O app agora começa na tela de Boas-Vindas
+        startDestination = Screen.Welcome.route
     ) {
+
+        // 3. (NOVA ROTA) Adiciona o composable da tela de Boas-Vindas
+        composable(route = Screen.Welcome.route) {
+            WelcomeScreen(
+                onNavigateToMain = {
+                    // 4. (LÓGICA DE NAVEGAÇÃO)
+                    // Quando o usuário clicar em "Get Started",
+                    // navegamos para a lista...
+                    navController.navigate(Screen.VehicleList.route) {
+                        // ...e removemos a WelcomeScreen da pilha.
+                        // Isso impede que o usuário clique em "Voltar"
+                        // e veja a tela de boas-vindas novamente.
+                        popUpTo(Screen.Welcome.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
 
         // --- ROTA DA LISTA (MODIFICADA) ---
         composable(route = Screen.VehicleList.route) {

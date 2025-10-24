@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import com.kingcreationslabs.sillioncadastroveiculosmanager.data.TipoDeVeiculo // Importe o Enum
 
 @HiltViewModel
 class VehicleDetailsViewModel @Inject constructor(
@@ -65,6 +66,10 @@ class VehicleDetailsViewModel @Inject constructor(
                     ownerName = vehicle.ownerName,
                     status = vehicle.status,
                     notes = vehicle.notes,
+
+                    // 1. (MUDANÇA) Carregue o tipo do veículo no state
+                    type = vehicle.type,
+
                     // Converte Date? (do Model) para Long? (do UiState)
                     lastRevision = vehicle.lastRevision?.time,
                     nextRevision = vehicle.nextRevision?.time,
@@ -116,6 +121,11 @@ class VehicleDetailsViewModel @Inject constructor(
         _uiState.update { it.copy(notes = newValue) }
     }
 
+    // 2. (NOVA FUNÇÃO) (pode copiar do AddVehicleViewModel)
+    fun onTypeChanged(type: TipoDeVeiculo) {
+        _uiState.update { it.copy(type = type) }
+    }
+
     fun onLastRevisionDateSelected(dateInMillis: Long?) {
         _uiState.update { it.copy(lastRevision = dateInMillis) }
     }
@@ -153,6 +163,11 @@ class VehicleDetailsViewModel @Inject constructor(
             ownerName = currentState.ownerName,
             status = currentState.status,
             notes = currentState.notes,
+
+            // 3. (MUDANÇA) Passe o tipo do state para o modelo
+            //    (O resto do código já estava correto)
+            type = currentState.type,
+
             lastRevision = currentState.lastRevision?.let { Date(it) },
             nextRevision = currentState.nextRevision?.let { Date(it) },
             registrationDueDate = currentState.registrationDueDate?.let { Date(it) },

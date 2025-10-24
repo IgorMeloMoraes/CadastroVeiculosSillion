@@ -1,6 +1,7 @@
 package com.kingcreationslabs.sillioncadastroveiculosmanager.data
 
 
+import androidx.room.ColumnInfo // 1. (NOVA IMPORTAÇÃO)
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.firebase.firestore.ServerTimestamp
@@ -54,7 +55,11 @@ data class Vehicle(
     // Mostra que pensamos na flexibilidade do sistema.
     val notes: String = "", // observações (ex: Objeto novo)
 
-
+    // 2. (NOVO CAMPO ADICIONADO)
+    // Define o valor padrão para o Room (como String)
+    @ColumnInfo(defaultValue = "OUTRO")
+    // Define o valor padrão para o Kotlin (quando criamos um novo objeto)
+    val type: TipoDeVeiculo = TipoDeVeiculo.CARRO,
 
     // --- Campo de Auditoria ---
     // Anotação do Firebase: Quando este objeto for salvo no Firestore,

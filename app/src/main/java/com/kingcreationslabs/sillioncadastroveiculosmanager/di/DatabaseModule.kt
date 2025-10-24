@@ -27,6 +27,9 @@ object DatabaseModule {
             VehicleDatabase.DATABASE_NAME // Usando o nome que definimos
         )
             .fallbackToDestructiveMigration() // Se atualizarmos a versão, ele apaga o banco (ok para testes)
+            // 1. (NOVA LINHA) Diz ao Room para executar nossa migração
+            //    ao atualizar da v1 para a v2.
+            .addMigrations(VehicleDatabase.MIGRATION_1_2)
             .build()
     }
 

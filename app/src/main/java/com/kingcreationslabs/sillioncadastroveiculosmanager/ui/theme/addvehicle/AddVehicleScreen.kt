@@ -49,6 +49,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+// 1. (NOVA IMPORTAÇÃO) Importe o componente que acabamos de criar
+import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.components.TypeSelectionDropdown
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,6 +142,13 @@ fun AddVehicleScreen(
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true
+            )
+
+            // 2. (NOVO COMPONENTE ADICIONADO AQUI)
+            TypeSelectionDropdown(
+                selectedType = uiState.type,
+                onTypeSelected = viewModel::onTypeChanged,
+                modifier = Modifier.fillMaxWidth()
             )
 
             // Linha para Ano e Cor

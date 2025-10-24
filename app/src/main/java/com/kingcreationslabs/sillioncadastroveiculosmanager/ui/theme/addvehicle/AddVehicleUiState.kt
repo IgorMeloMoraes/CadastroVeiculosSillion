@@ -1,5 +1,7 @@
 package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.addvehicle
 
+// 1. (NOVA IMPORTAÇÃO)
+import com.kingcreationslabs.sillioncadastroveiculosmanager.data.TipoDeVeiculo
 data class AddVehicleUiState(
     // Campos do formulário (usamos Strings, o ViewModel validará)
     val plate: String = "",
@@ -11,6 +13,10 @@ data class AddVehicleUiState(
     val ownerName: String = "",
     val status: String = "Active", // "Active" como padrão
     val notes: String = "",
+
+    // 2. (NOVO CAMPO)
+    // O valor padrão será 'OUTRO'
+    val type: TipoDeVeiculo = TipoDeVeiculo.CARRO,
 
     // Campos de Data (usamos Long? para o timestamp)
     val lastRevision: Long? = null,
