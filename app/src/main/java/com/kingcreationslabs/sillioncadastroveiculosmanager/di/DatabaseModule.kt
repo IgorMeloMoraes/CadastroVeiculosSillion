@@ -11,35 +11,30 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module // Anotação que diz ao Hilt que isto é um Módulo
-@InstallIn(SingletonComponent::class) //  As "fábricas" aqui viverão enquanto o app viver
+@Module
+@InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
     //  Esta função "fabrica" o VehicleDatabase
     @Provides
     @Singleton // Garante que só existirá UMA instância do banco no app inteiro
     fun provideVehicleDatabase(
-        @ApplicationContext context: Context //  O Hilt nos dá o Contexto do App
+        @ApplicationContext context: Context
     ): VehicleDatabase {
         return Room.databaseBuilder(
             context,
             VehicleDatabase::class.java,
-            VehicleDatabase.DATABASE_NAME // Usando o nome que definimos
+            VehicleDatabase.DATABASE_NAME
         )
-            .fallbackToDestructiveMigration() // Se atualizarmos a versão, ele apaga o banco (ok para testes)
-            // 1. (NOVA LINHA) Diz ao Room para executar nossa migração
-            //    ao atualizar da v1 para a v2.
+            .fallbackToDestructiveMigration()
             .addMigrations(VehicleDatabase.MIGRATION_1_2)
             .build()
     }
 
     //  Esta função "fabrica" o VehicleDao
     @Provides
-    @Singleton //  Garante UMA instância do DAO
+    @Singleton
     fun provideVehicleDao(database: VehicleDatabase): VehicleDao {
-        // 8. O Hilt vê que esta função precisa de um "VehicleDatabase".
-        // Ele olha para a função acima (provideVehicleDatabase),
-        // "fabrica" o banco e o passa para cá.
         return database.vehicleDao()
     }
 }

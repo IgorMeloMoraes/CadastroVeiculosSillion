@@ -1,9 +1,9 @@
 package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelist
 
-// --- IMPORTS COMPLETOS E CORRIGIDOS ---
-import androidx.compose.animation.animateColorAsState // <-- PARA ANIMAÇÃO DE COR
-import androidx.compose.animation.core.animateFloatAsState // <-- PARA ANIMAÇÃO DE ESCALA
-import androidx.compose.foundation.background // <-- PARA MODIFICADOR DE FUNDO
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons // <-- PARA ACESSAR ÍCONES
-import androidx.compose.material.icons.filled.Delete // <-- ÍCONE ESPECÍFICO
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon // <-- COMPOSABLE DE ÍCONE
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -32,17 +32,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale // <-- PARA MODIFICADOR DE ESCALA
-import androidx.compose.ui.graphics.Color // <-- PARA CORES
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp // <-- PARA UNIDADES (Density-independent Pixels)
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle
-// ^-- (Confirme o caminho para seu Modelo)
-
-// --- IMPORTS DOS SEUS COMPONENTES ---
-// (Certifique-se que os caminhos estão corretos para onde você os salvou)
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.components.VehicleFilterBar
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehiclelist.VehicleListItem
 
@@ -55,7 +51,7 @@ fun VehicleListScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.userMessage) { /* ... (igual) ... */ }
+    LaunchedEffect(uiState.userMessage) {  }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -95,33 +91,31 @@ private fun VehicleListContent(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        if (uiState.isLoading && uiState.vehicles.isEmpty()) { /* ... (igual) ... */ }
-        else if (uiState.error != null) { /* ... (igual) ... */ }
-        else if (uiState.vehicles.isEmpty()) { /* ... (igual) ... */ }
+        if (uiState.isLoading && uiState.vehicles.isEmpty()) {  }
+        else if (uiState.error != null) {  }
+        else if (uiState.vehicles.isEmpty()) {  }
         else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(uiState.vehicles, key = { it.plate }) { vehicle ->
                     val dismissState = rememberSwipeToDismissBoxState(
-                        // *** CORREÇÃO DO ARGUMENT TYPE MISMATCH ***
                         confirmValueChange = { dismissValue ->
                             if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
                                 onDeleteVehicle(vehicle)
-                                true // <-- RETORNA Boolean
+                                true
                             } else {
-                                false // <-- RETORNA Boolean
+                                false
                             }
                         }
-                        // *** FIM DA CORREÇÃO ***
                     )
                     SwipeToDismissBox(
                         state = dismissState,
-                        backgroundContent = { SwipeToDeleteBackground(dismissState = dismissState) }, // Chamada ao Helper
+                        backgroundContent = { SwipeToDeleteBackground(dismissState = dismissState) },
                         enableDismissFromEndToStart = true,
                         enableDismissFromStartToEnd = false
                     ) {
-                        VehicleListItem( // Chamada ao Helper
+                        VehicleListItem(
                             vehicle = vehicle,
                             onClick = { onNavigateToDetails(it.plate) }
                         )
@@ -132,7 +126,6 @@ private fun VehicleListContent(
     }
 }
 
-// *** CÓDIGO DO SWIPETODELETEBACKGROUND (MANTIDO AQUI POR ENQUANTO) ***
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDeleteBackground(dismissState: SwipeToDismissBoxState) {
@@ -151,7 +144,7 @@ private fun SwipeToDeleteBackground(dismissState: SwipeToDismissBoxState) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color) // <-- CORRIGIDO (estava faltando .background)
+            .background(color)
             .padding(horizontal = 20.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
@@ -163,4 +156,3 @@ private fun SwipeToDeleteBackground(dismissState: SwipeToDismissBoxState) {
         )
     }
 }
-// *** FIM DO SWIPETODELETEBACKGROUND ***

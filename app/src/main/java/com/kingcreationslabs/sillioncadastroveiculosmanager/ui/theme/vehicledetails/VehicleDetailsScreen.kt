@@ -1,7 +1,5 @@
 package com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.vehicledetails
 
-// --- IMPORTS ---
-// (São os mesmos da AddVehicleScreen)
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -48,27 +46,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.addvehicle.AddVehicleUiState // <-- REUTILIZAMOS O UiState
+import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.addvehicle.AddVehicleUiState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-// 1. (NOVA IMPORTAÇÃO) Importe o componente que acabamos de criar
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.components.TypeSelectionDropdown
 
-// 1. (MUDANÇA) Removemos o 'plate: String?'
-//    Não precisamos mais dele, pois o ViewModel cuidará disso.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VehicleDetailsScreen(
     onBack: () -> Unit,
-    // 2. (MUDANÇA) Chamamos o ViewModel correto
     viewModel: VehicleDetailsViewModel = hiltViewModel()
 ) {
-    // 3. (MUDANÇA) Observamos o UiState do ViewModel de Detalhes
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    // 4. (SEM MUDANÇA) A lógica de 'isSaveSuccess' e 'saveError' é IDÊNTICA
     LaunchedEffect(key1 = uiState.isSaveSuccess) {
         if (uiState.isSaveSuccess) {
             Toast.makeText(context, "Veículo atualizado!", Toast.LENGTH_SHORT).show()
@@ -86,7 +78,6 @@ fun VehicleDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                // 5. (MUDANÇA) Título da tela
                 title = { Text("Editar Veículo") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -99,7 +90,6 @@ fun VehicleDetailsScreen(
             )
         }
     ) { paddingValues ->
-        // O restante do formulário é IDÊNTICO, exceto pelo campo 'plate'
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -109,18 +99,16 @@ fun VehicleDetailsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            // --- CAMPO DE PLACA BLOQUEADO ---
-            // 6. (MUDANÇA PRINCIPAL)
             OutlinedTextField(
                 value = uiState.plate,
-                onValueChange = { }, // Não faz nada
+                onValueChange = { },
                 label = { Text("Placa (Não pode ser editada)") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = false, // <-- A MUDANÇA
+                enabled = false,
                 singleLine = true,
-                // --- NOVAS PROPRIEDADES ---
-                isError = uiState.isPlateError, // Usa o estado de erro do ViewModel
-                supportingText = { // Mostra mensagem de ajuda/erro
+
+                isError = uiState.isPlateError,
+                supportingText = {
                     if (uiState.isPlateError) {
                         Text(
                             text = "Formato: AAA-1234 ou AAA1B23",
@@ -128,26 +116,21 @@ fun VehicleDetailsScreen(
                         )
                     }
                 }
-                // --- FIM DAS NOVAS PROPRIEDADES ---
             )
 
-            // O RESTANTE DO FORMULÁRIO É EXATAMENTE O MESMO
 
             OutlinedTextField(
                 value = uiState.manufacturer,
                 onValueChange = viewModel::onManufacturerChange,
                 label = { Text("Fabricante*") },
-                // ... (igual)
             )
 
             OutlinedTextField(
                 value = uiState.model,
                 onValueChange = viewModel::onModelChange,
                 label = { Text("Modelo*") },
-                // ... (igual)
             )
 
-            // 2. (NOVO COMPONENTE ADICIONADO AQUI)
             TypeSelectionDropdown(
                 selectedType = uiState.type,
                 onTypeSelected = viewModel::onTypeChanged,
@@ -162,7 +145,6 @@ fun VehicleDetailsScreen(
                     value = uiState.modelYear,
                     onValueChange = viewModel::onModelYearChange,
                     label = { Text("Ano") },
-                    // 1. ADICIONE/CORRIJA O MODIFIER AQUI
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -174,7 +156,6 @@ fun VehicleDetailsScreen(
                     value = uiState.color,
                     onValueChange = viewModel::onColorChange,
                     label = { Text("Cor") },
-                    // 2. ADICIONE/CORRIJA O MODIFIER AQUI
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
@@ -187,27 +168,25 @@ fun VehicleDetailsScreen(
             OutlinedTextField(
                 value = uiState.mileage,
                 onValueChange = viewModel::onMileageChange,
-                // ... (igual)
+
                 label = { Text("Km") },
             )
 
             OutlinedTextField(
                 value = uiState.ownerName,
                 onValueChange = viewModel::onOwnerNameChange,
-                // ... (igual)
                 label = { Text("Prorietário") },
             )
 
             OutlinedTextField(
                 value = uiState.notes,
                 onValueChange = viewModel::onNotesChange,
-                // ... (igual)
                 label = { Text("Notas") },
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- Seletores de Data (IDÊNTICOS) ---
+            // --- Seletores de Data  ---
             DatePickerButton(
                 labelText = "Última Revisão",
                 selectedDate = uiState.lastRevision,
@@ -228,7 +207,7 @@ fun VehicleDetailsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- Botão de Salvar (IDÊNTICO) ---
+            // --- Botão de Salvar  ---
             Button(
                 onClick = viewModel::saveVehicle, // Chama o 'saveVehicle' do ViewModel de Detalhes
                 modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -236,20 +215,16 @@ fun VehicleDetailsScreen(
             ) {
                 if (uiState.isSaving) {
                     CircularProgressIndicator(
-                        // ... (igual)
+
                     )
                 } else {
-                    Text("SALVAR ALTERAÇÕES") // 7. (MUDANÇA) Texto do botão
+                    Text("SALVAR ALTERAÇÕES")
                 }
             }
         }
     }
 }
 
-// --- (CÓDIGO DUPLICADO) ---
-// (Nota de Sênior: Para um projeto maior, moveríamos
-// estes dois helpers para um arquivo 'utils/ComposeUtils.kt'
-// para evitar duplicação. Para este teste, está ok copiá-los.)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

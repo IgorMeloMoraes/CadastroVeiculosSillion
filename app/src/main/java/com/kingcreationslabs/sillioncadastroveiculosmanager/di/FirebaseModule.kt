@@ -9,20 +9,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module // Anotação que diz ao Hilt que isto é um Módulo
-@InstallIn(SingletonComponent::class) //  Viverá enquanto o app viver (Singleton)
+@Module
+@InstallIn(SingletonComponent::class)
 object FirebaseModule {
 
-    //  Esta é a "receita" (provider)
     @Provides
-    @Singleton //  Garante que só existirá UMA instância do Firestore no app
+    @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore {
-        //  Usamos a biblioteca KTX (firebase-ktx) que
-        //    adicionamos na Sprint 1 para pegar a instância
-        //    padrão do Firestore.
         return Firebase.firestore
     }
-
-    // (Futuramente, se precisássemos de Firebase Auth ou Storage,
-    //  adicionaríamos mais funções @Provides aqui.)
 }

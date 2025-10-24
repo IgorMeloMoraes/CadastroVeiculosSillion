@@ -8,15 +8,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module // Diz ao Hilt que é um módulo
+@Module
 @InstallIn(SingletonComponent::class) //  Viverá enquanto o App viver
-abstract class RepositoryModule { //  Precisa ser "abstract" para usar @Binds
+abstract class RepositoryModule {
 
-    //  A anotação "@Binds" é a mais eficiente. Ela diz ao Hilt:
-    //    "Quando alguém pedir um 'VehicleRepository' (a interface),
-    //    forneça a ele um 'VehicleRepositoryImpl' (a implementação)."
     @Binds
-    @Singleton //  Garante que só teremos um repositório no app
+    @Singleton
     abstract fun bindVehicleRepository(
         vehicleRepositoryImpl: VehicleRepositoryImpl
     ): VehicleRepository

@@ -18,37 +18,31 @@ sealed class BottomNavItem(
     val title: String,
     val icon: ImageVector,
     val route: String,
-    val isEnabled: Boolean = true // Por padrão, todos são habilitados
+    val isEnabled: Boolean = true
 ) {
-    // 1. HOME (Nossa tela de lista de veículos)
-    //    Ela usa a rota que já definimos no 'Screen.kt'
     object Home : BottomNavItem(
         title = "Início",
         icon = Icons.Default.Home,
         route = Screen.VehicleList.route
     )
 
-    // 2. ADICIONAR (Nossa tela de adicionar veículo)
-    //    Também usa uma rota do 'Screen.kt'
     object Add : BottomNavItem(
         title = "Adicionar",
         icon = Icons.Default.AddCircle,
         route = Screen.AddVehicle.route
     )
 
-    // 3. PERFIL (Item figurante, como você sugeriu)
     object Profile : BottomNavItem(
         title = "Perfil",
         icon = Icons.Default.Person,
-        route = "profile_screen", // Rota "fantasma"
-        isEnabled = false // <-- DESABILITADO
+        route = "profile_screen",
+        isEnabled = false
     )
 
-    // 4. CONFIGURAÇÕES (Item figurante, como você sugeriu)
     object Settings : BottomNavItem(
         title = "Config.",
         icon = Icons.Default.Settings,
-        route = "settings_screen", // Rota "fantasma"
-        isEnabled = false // <-- DESABILITADO
+        route = "settings_screen",
+        isEnabled = false
     )
 }

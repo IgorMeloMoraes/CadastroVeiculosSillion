@@ -3,7 +3,6 @@ package com.kingcreationslabs.sillioncadastroveiculosmanager.repository
 import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle
 import kotlinx.coroutines.flow.Flow
 
-
 interface VehicleRepository {
 
     // (Read) Retorna o fluxo de dados do Room
@@ -18,8 +17,7 @@ interface VehicleRepository {
     // (Delete)
     suspend fun deleteVehicle(vehicle: Vehicle)
 
-    // ADICIONE ESTA NOVA FUNÇÃO
-    // Esta função buscará dados do Firestore e os salvará (upsert) no Room.
-    // É uma função 'suspend' pois faz uma chamada de rede.
+
+    // buscar dados do Firestore e os salva (upsert) no Room.
     suspend fun syncVehiclesFromFirestore()
 }

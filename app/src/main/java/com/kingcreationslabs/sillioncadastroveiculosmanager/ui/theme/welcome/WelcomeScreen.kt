@@ -37,8 +37,8 @@ fun WelcomeScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF609cf3), // Cor de Cima: #609cf3
-                        Color(0xFF3b4ca6)  // Cor de Baixo: #3b4ca6
+                        Color(0xFF609cf3),
+                        Color(0xFF3b4ca6)
                     )
                 )
             )
@@ -51,10 +51,10 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
 
-            // Espaço superior
+
             Spacer(modifier = Modifier.weight(1f))
 
-            // O Logotipo
+
             Image(
                 painter = painterResource(id = R.drawable.ic_logo_splash),
                 contentDescription = "Logotipo do Aplicativo",
@@ -63,7 +63,7 @@ fun WelcomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // O Texto de Boas-Vindas (Título)
+
             Text(
                 text = "Gerencie seus Veículos com Facilidade",
                 fontSize = 32.sp,
@@ -73,10 +73,10 @@ fun WelcomeScreen(
                 lineHeight = 40.sp
             )
 
-            // 1. (MUDANÇA) Espaçamento entre os textos reduzido
-            Spacer(modifier = Modifier.height(32.dp)) // <-- Era 16.dp
 
-            // Texto (Subtítulo)
+            Spacer(modifier = Modifier.height(32.dp))
+
+
             Text(
                 text = "Mantenha o controle de revisões, licenciamento e muito mais.",
                 fontSize = 18.sp,
@@ -85,10 +85,10 @@ fun WelcomeScreen(
                 textAlign = TextAlign.Center
             )
 
-            // 2. (MUDANÇA) Espaço inferior reduzido para subir o botão
-            Spacer(modifier = Modifier.weight(1f)) // <-- Era 2f
 
-            // O Botão "Get Started"
+            Spacer(modifier = Modifier.weight(1f))
+
+
             Button(
                 onClick = onNavigateToMain,
                 modifier = Modifier
@@ -106,8 +106,6 @@ fun WelcomeScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
-            // 1. (A SOLUÇÃO) Adiciona um espaçador FIXO
-            //    abaixo do botão para "levantá-lo".
             Spacer(modifier = Modifier.height(32.dp))
         }
     }

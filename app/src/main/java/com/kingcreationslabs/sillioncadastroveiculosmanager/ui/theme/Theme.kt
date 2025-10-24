@@ -16,57 +16,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// --- ESQUEMA DE CORES CLARO (ATUALIZADO) ---
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryBlue, // Azul principal
-    secondary = AccentGreen, // Verde secundário/acento
-    tertiary = Pink40, // Pode manter ou ajustar
+    primary = PrimaryBlue,
+    secondary = AccentGreen,
+    tertiary = Pink40,
 
     // --- CORES DE FUNDO E SUPERFÍCIE ---
-    background = LightGrayBackground, // Fundo principal das telas
-    surface = Color.White, // Fundo dos Cards, AppBars, etc. (Branco contrasta bem com F6F6F6)
+    background = LightGrayBackground,
+    surface = Color.White,
 
-    // --- CORES "SOBRE" (Textos e Ícones) ---
-    onPrimary = Color.White, // Texto sobre fundo primário (azul)
-    onSecondary = Color.Black, // Texto sobre fundo secundário (verde)
+
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
     onTertiary = Color.White,
-    onBackground = CardTextColor, // Cor principal do texto sobre o fundo F6F6F6
-    onSurface = CardTextColor, // Cor principal do texto sobre Cards brancos
-    onSurfaceVariant = CardTextColor.copy(alpha = 0.7f) // Cor secundária (mais clara) para textos/ícones
+    onBackground = CardTextColor,
+    onSurface = CardTextColor,
+    onSurfaceVariant = CardTextColor.copy(alpha = 0.7f)
 
-    /* Outras cores personalizáveis:
-    primaryContainer = ...,
-    onPrimaryContainer = ...,
-    secondaryContainer = ...,
-    onSecondaryContainer = ...,
-    tertiaryContainer = ...,
-    onTertiaryContainer = ...,
-    error = ...,
-    onError = ...,
-    errorContainer = ...,
-    onErrorContainer = ...,
-    outline = ...,
-    surfaceVariant = ..., // Fundo de componentes como Chips
-    scrim = ...
-    */
 )
 
-// --- ESQUEMA DE CORES ESCURO (Pode manter ou ajustar se quiser suportar Dark Mode) ---
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80,
-    // Ajuste as cores de fundo e texto para o modo escuro, se desejar
-    // background = Color(0xFF1C1B1F),
-    // surface = Color(0xFF1C1B1F),
-    // onPrimary = Color(0xFF381E72),
-    // ...
 )
 
 @Composable
-fun SillionCadastroVeiculosManagerTheme( // <-- Seu nome de tema
+fun SillionCadastroVeiculosManagerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true, // Permite cores dinâmicas no Android 12+ (opcional)
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -75,22 +53,21 @@ fun SillionCadastroVeiculosManagerTheme( // <-- Seu nome de tema
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> DarkColorScheme
-        else -> LightColorScheme // Usaremos o nosso LightColorScheme atualizado
+        else -> LightColorScheme
     }
 
-    // ... (Código do SideEffect para status bar - não precisa mudar)
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb() // Cor da Status Bar
+            window.statusBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography, // (Do seu Typography.kt)
+        typography = Typography,
         content = content
     )
 }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine // <-- (NOVA IMPORTAÇÃO)
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,38 +21,28 @@ class VehicleListViewModel @Inject constructor(
     private val repository: VehicleRepository
 ) : ViewModel() {
 
-    // 1. (NOVO) StateFlow privado para guardar o filtro selecionado
-    private val _selectedType = MutableStateFlow<TipoDeVeiculo?>(null) // Começa com "Todos"
+    private val _selectedType = MutableStateFlow<TipoDeVeiculo?>(null)
 
-    // 2. (MODIFICADO) O UiState agora é construído combinando vários fluxos
     private val _uiState = MutableStateFlow(VehicleListUiState())
     val uiState: StateFlow<VehicleListUiState> = _uiState.asStateFlow()
 
     init {
-        // 3. (MODIFICADO) Renomeado para ficar mais claro
         observeVehiclesAndFilter()
         syncVehiclesFromRemote()
     }
 
-    // 4. (MODIFICADO) Função principal que combina e filtra
     private fun observeVehiclesAndFilter() {
         viewModelScope.launch {
-            // Usamos 'combine' para juntar o fluxo de veículos do repo
-            // com o nosso StateFlow do filtro selecionado.
             combine(
-                repository.getVehiclesStream(), // Fluxo 1: Lista completa do Room
-                _selectedType                // Fluxo 2: O filtro atual
+                repository.getVehiclesStream(),
+                _selectedType
             ) { vehicles, selectedType ->
-                // Este bloco é executado sempre que 'vehicles' OU 'selectedType' mudar.
-
-                // Filtramos a lista aqui, ANTES de atualizar a UI
                 val filteredVehicles = if (selectedType == null) {
-                    vehicles // Se o filtro for null ("Todos"), retorna a lista completa
+                    vehicles
                 } else {
-                    vehicles.filter { it.type == selectedType } // Senão, filtra pelo tipo
+                    vehicles.filter { it.type == selectedType }
                 }
 
-                // Retornamos um 'Pair' (Par) com a lista filtrada e o filtro usado
                 Pair(filteredVehicles, selectedType)
             }
                 .onStart {
@@ -67,12 +57,11 @@ class VehicleListViewModel @Inject constructor(
                     }
                 }
                 .collect { (filteredList, currentFilter) ->
-                    // Recebemos o 'Pair' que criamos no 'combine'
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            vehicles = filteredList, // A UI recebe a lista JÁ FILTRADA
-                            selectedType = currentFilter, // Atualiza o filtro selecionado no State
+                            vehicles = filteredList,
+                            selectedType = currentFilter,
                             error = null
                         )
                     }
@@ -83,20 +72,12 @@ class VehicleListViewModel @Inject constructor(
     private fun syncVehiclesFromRemote() {
         viewModelScope.launch {
             try {
-                // Não precisamos mais do isLoading aqui, pois 'observeVehiclesAndFilter'
-                // já trata disso no .onStart()
-                // _uiState.update { it.copy(isLoading = true) } // (REMOVIDO)
-
                 repository.syncVehiclesFromFirestore()
-
-                // O isLoading será tratado pelo .collect() do combine quando os
-                // dados sincronizados chegarem do Room.
-                // _uiState.update { it.copy(isLoading = false) } // (REMOVIDO)
 
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
-                        isLoading = false, // Garante que parou o loading
+                        isLoading = false,
                         error = "Falha ao sincronizar: ${e.message}"
                     )
                 }
@@ -104,10 +85,9 @@ class VehicleListViewModel @Inject constructor(
         }
     }
 
-    // 5. (NOVA FUNÇÃO) Chamada pela UI quando um filtro é clicado
     fun onFilterChanged(type: TipoDeVeiculo?) {
-        _selectedType.value = type // Simplesmente atualiza o StateFlow do filtro
-        // O 'combine' lá em cima vai reagir automaticamente a esta mudança.
+        _selectedType.value = type
+
     }
 
     fun deleteVehicle(vehicle: Vehicle) {

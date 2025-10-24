@@ -49,14 +49,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-// 1. (NOVA IMPORTAÇÃO) Importe o componente que acabamos de criar
 import com.kingcreationslabs.sillioncadastroveiculosmanager.ui.theme.components.TypeSelectionDropdown
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddVehicleScreen(
-    onBack: () -> Unit, // Função para navegar de volta (da Sprint 1)
+    onBack: () -> Unit,
     viewModel: AddVehicleViewModel = hiltViewModel()
 ) {
     //  Observa o UiState do ViewModel
@@ -64,13 +63,11 @@ fun AddVehicleScreen(
     val context = LocalContext.current
 
     //  Lógica para "escutar" o sucesso ao salvar.
-    //    LaunchedEffect é um Composable que executa uma 'suspend fun'
-    //    quando sua 'key' (uiState.isSaveSuccess) muda para true.
     LaunchedEffect(key1 = uiState.isSaveSuccess) {
         if (uiState.isSaveSuccess) {
             Toast.makeText(context, "Veículo salvo!", Toast.LENGTH_SHORT).show()
-            viewModel.onSaveComplete() // Reseta o estado
-            onBack() // Navega de volta
+            viewModel.onSaveComplete()
+            onBack()
         }
     }
 
@@ -96,13 +93,12 @@ fun AddVehicleScreen(
             )
         }
     ) { paddingValues ->
-        // 4. Column rolável para o formulário
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()), // Torna o form rolável
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
@@ -118,9 +114,8 @@ fun AddVehicleScreen(
                     imeAction = ImeAction.Next
                 ),
                 singleLine = true,
-                // --- NOVAS PROPRIEDADES ---
-                isError = uiState.isPlateError, // Usa o estado de erro do ViewModel
-                supportingText = { // Mostra mensagem de ajuda/erro
+                isError = uiState.isPlateError,
+                supportingText = {
                     if (uiState.isPlateError) {
                         Text(
                             text = "Formato: AAA-1234 ou AAA1B23",
@@ -128,7 +123,7 @@ fun AddVehicleScreen(
                         )
                     }
                 }
-                // --- FIM DAS NOVAS PROPRIEDADES ---
+
             )
 
             OutlinedTextField(
@@ -155,14 +150,12 @@ fun AddVehicleScreen(
                 singleLine = true
             )
 
-            // 2. (NOVO COMPONENTE ADICIONADO AQUI)
             TypeSelectionDropdown(
                 selectedType = uiState.type,
                 onTypeSelected = viewModel::onTypeChanged,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Linha para Ano e Cor
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -288,8 +281,6 @@ private fun DatePickerButton(
             confirmButton = {
                 TextButton(onClick = {
                     showDialog = false
-                    // O DatePicker usa UTC. Adicionamos o offset do fuso horário
-                    // para garantir que a data local seja salva corretamente.
                     val selectedMillis = datePickerState.selectedDateMillis
                     onDateSelected(selectedMillis)
                 }) {
@@ -306,9 +297,8 @@ private fun DatePickerButton(
         }
     }
 
-    // O "Botão" que o usuário vê (parecido com um TextField)
     OutlinedTextField(
-        value = selectedDate.toFormattedDateString(), // Converte Long para "dd/MM/yyyy"
+        value = selectedDate.toFormattedDateString(),
         onValueChange = { },
         readOnly = true,
         label = { Text(labelText) },
@@ -322,8 +312,6 @@ private fun DatePickerButton(
 }
 
 // --- Função de Extensão (Helper) ---
-// (Pode ser movida para um arquivo 'utils/Extensions.kt' futuramente)
-
 @SuppressLint("SimpleDateFormat")
 private fun Long?.toFormattedDateString(): String {
     if (this == null) return ""
