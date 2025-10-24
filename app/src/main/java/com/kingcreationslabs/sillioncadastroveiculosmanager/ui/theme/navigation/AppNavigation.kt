@@ -20,7 +20,7 @@ fun AppNavigation() {
         // Rota para a Lista de Veículos
         composable(route = Screen.VehicleList.route) {
             VehicleListScreen(
-                onNavigateToAddVeiculos = {
+                onNavigateToAddVehicle = {
                     navController.navigate(Screen.AddVehicle.route)
                 }
             )

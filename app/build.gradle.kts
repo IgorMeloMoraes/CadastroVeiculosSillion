@@ -73,6 +73,7 @@ dependencies {
 
     // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Hilt (Injeção de Dependência)
     implementation(libs.hilt.android)
