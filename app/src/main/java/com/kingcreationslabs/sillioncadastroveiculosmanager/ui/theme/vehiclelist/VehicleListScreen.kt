@@ -45,6 +45,7 @@ import com.kingcreationslabs.sillioncadastroveiculosmanager.data.Vehicle // <-- 
 @Composable
 fun VehicleListScreen(
     onNavigateToAddVehicle: () -> Unit,
+    onNavigateToDetails: (String) -> Unit,
     viewModel: VehicleListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -70,7 +71,10 @@ fun VehicleListScreen(
         VehicleListContent(
             modifier = Modifier.padding(paddingValues),
             uiState = uiState,
-            onDeleteVehicle = viewModel::deleteVehicle
+            onDeleteVehicle = viewModel::deleteVehicle,
+            // 2. (MUDANÇA) Passe a nova função para o Content
+            onNavigateToDetails = onNavigateToDetails
+
         )
     }
 }
@@ -80,7 +84,8 @@ fun VehicleListScreen(
 private fun VehicleListContent(
     modifier: Modifier = Modifier,
     uiState: VehicleListUiState,
-    onDeleteVehicle: (Vehicle) -> Unit
+    onDeleteVehicle: (Vehicle) -> Unit,
+    onNavigateToDetails: (String) -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -137,6 +142,9 @@ private fun VehicleListContent(
                             vehicle = vehicle,
                             onClick = {
                                 // Tarefa 2 (Update)
+                               // 5. (MUDANÇA) Chama a função de navegação
+                                        //    passando a placa do veículo!
+                                        onNavigateToDetails(it.plate)
                             }
                         )
                     }
