@@ -40,7 +40,7 @@ data class Vehicle(
 
     // (Campo Adicional Empresarial)
     // Mostra que pensamos em outros "lembretes" valiosos para o usuário.
-    val registrationDueDate: Long? = null, // Vencimento do Licenciamento (ex: 2023-06-01)
+    val registrationDueDate: Date? = null, // Vencimento do Licenciamento (ex: 2023-06-01)
 
 
     // Mostra que pensamos no ciclo de vida do ativo.
