@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "2219205875",
+    "project_id": "sillioncadastroveiculosmanager",
+    "storage_bucket": "sillioncadastroveiculosmanager.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2219205875:android:30d7c677592b55493e8386",
+        "android_client_info": {
+          "package_name": "com.kingcreationslabs.sillioncadastroveiculosmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyyU1B4svcO9E-rf2ogqEXsBt_7sru4EU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
