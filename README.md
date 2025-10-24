@@ -70,5 +70,7 @@ Este projeto implementa uma arquitetura **Offline-first**.
 
 ### Visualização das Telas 
 
-
-
+<img src="https://github.com/user-attachments/assets/c0610f52-064d-4759-990d-1910deac52bb" width="300" />
+<img src="https://github.com/user-attachments/assets/1385c38c-0ac7-4478-840f-65837da1e070" width="300" />
+<img src="https://github.com/user-attachments/assets/8eb6f58c-7a13-4ea7-9f96-8b0b4574c206" width="300" />
+<img width="1543" height="677" alt="fire" src="https://github.com/user-attachments/assets/9da5eafe-b11e-4cbc-96e6-b7396b9016fb" />
